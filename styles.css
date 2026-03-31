@@ -1,0 +1,163 @@
+:root {
+  --bg: #f2f5f7;
+  --card: #ffffff;
+  --text: #1d2939;
+  --accent: #0f766e;
+  --accent-2: #115e59;
+  --muted: #667085;
+  --warn: #b54708;
+  --ok: #027a48;
+  --line: #d0d5dd;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  background: var(--accent);
+  color: #fff;
+  padding: 16px;
+}
+
+h1,
+h2,
+p {
+  margin: 0 0 10px;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.status {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f5f5f5;
+  color: #333;
+  font-size: 12px;
+}
+
+.badge.neutral {
+  background: #e5e7eb;
+}
+
+.badge.online {
+  background: #dcfce7;
+  color: var(--ok);
+}
+
+.badge.offline {
+  background: #fef3c7;
+  color: var(--warn);
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-top: 10px;
+}
+
+.grid .full {
+  grid-column: 1 / -1;
+}
+
+.actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+button {
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: var(--accent-2);
+}
+
+.records {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.records li {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.record-state {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.record-state.pending {
+  color: var(--warn);
+}
+
+.record-state.synced {
+  color: var(--ok);
+}

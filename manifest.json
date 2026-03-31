@@ -1,0 +1,10 @@
+{
+  "name": "Operaciones Trebol Offline",
+  "short_name": "Trebol",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f2f5f7",
+  "theme_color": "#0f766e",
+  "lang": "es",
+  "icons": []
+}
