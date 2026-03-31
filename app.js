@@ -147,6 +147,8 @@ async function syncPendingRecords() {
   }
 
   let syncedCount = 0;
+  let failedCount = 0;
+  let lastFailureReason = '';
 
   for (const record of pendingRecords) {
     try {
@@ -156,9 +158,15 @@ async function syncPendingRecords() {
         record.syncedAt = new Date().toISOString();
         await saveRecord(record);
         syncedCount += 1;
+      } else {
+        failedCount += 1;
+        if (result.reason) {
+          lastFailureReason = result.reason;
+        }
       }
     } catch (error) {
       // Si falla la red, se mantiene pendiente para reintentar luego.
+      failedCount += 1;
       showSyncMessage(`Error de sincronización: ${error?.message || 'sin detalle'}.`, 'warn');
     }
   }
@@ -168,7 +176,11 @@ async function syncPendingRecords() {
     showSyncMessage(`Sincronización completada: ${syncedCount} registro(s) enviado(s).`, 'ok');
   } else {
     showSyncMessage(
-      'No se sincronizó ningún registro. Revisa que la URL /exec sea de la última versión desplegada del Apps Script.',
+      `No se sincronizó ningún registro${
+        failedCount ? ` (${failedCount} fallido/s)` : ''
+      }. Revisa la URL /exec, el ID de la hoja y el despliegue de Apps Script.${
+        lastFailureReason ? ` Detalle: ${lastFailureReason}` : ''
+      }`,
       'warn',
     );
   }
@@ -187,14 +199,18 @@ async function sendRecordToAppsScript(appsScriptUrl, record) {
     });
 
     if (!response.ok) {
-      return { synced: false };
+      return { synced: false, reason: `HTTP ${response.status}` };
     }
 
     const result = await response.json().catch(() => ({}));
-    return { synced: Boolean(result?.ok || result?.status === 'ok') };
+    if (result?.ok || result?.status === 'ok') {
+      return { synced: true };
+    }
+
+    return { synced: false, reason: result?.message || 'Apps Script no confirmó el guardado.' };
   } catch (_error) {
-    // Fallback para despliegues de Apps Script sin CORS.
-    // mode:no-cors permite enviar el POST pero no leer la respuesta (opaque).
+    // Fallback para despliegues de Apps Script sin CORS:
+    // mode:no-cors permite intentar el envío, pero NO confirma guardado.
     const opaqueResponse = await fetch(appsScriptUrl, {
       method: 'POST',
       mode: 'no-cors',
@@ -203,10 +219,13 @@ async function sendRecordToAppsScript(appsScriptUrl, record) {
     });
 
     if (opaqueResponse.type === 'opaque') {
-      return { synced: true };
+      return {
+        synced: false,
+        reason: 'No se pudo confirmar respuesta del Apps Script (modo no-cors).',
+      };
     }
 
-    return { synced: false };
+    return { synced: false, reason: 'No se pudo completar el envío al Apps Script.' };
   }
 }
 

@@ -38,6 +38,7 @@ python3 -m http.server 8080
 - En Apps Script, usa "Implementar > Administrar implementaciones > Editar" y crea una nueva versión cuando cambies `Code.gs`.
 - En `apps-script/Code.gs`, reemplaza `REEMPLAZAR_SHEET_ID` por el ID real de tu Google Sheet.
 - La app ahora muestra mensajes de error en pantalla para facilitar el diagnóstico.
+- Si el navegador solo permite `no-cors`, la app **ya no marcará el registro como sincronizado** hasta recibir confirmación explícita del Apps Script.
 
 ## Campos del formato ejemplo
 
