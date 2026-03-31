@@ -161,8 +161,3 @@ button.secondary {
 .record-state.synced {
   color: var(--ok);
 }
-
-.hint {
-  color: var(--muted);
-  font-size: 13px;
-}

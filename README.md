@@ -2,34 +2,6 @@
 
 Aplicación web offline-first para registrar múltiples formatos (ejemplo: declaración jurada de salud) desde celular o PC, guardar localmente y sincronizar cuando hay internet hacia Google Sheets mediante Google Apps Script.
 
-## ¿Qué me tienes que pasar para que funcione?
-
-Sí, para conectarlo a tu Google Sheets real necesitas **2 datos**:
-
-1. **ID del Google Sheet** (para el script `Code.gs`).
-2. **URL de la Web App de Apps Script** (para la app móvil/web).
-
-### 1) ¿Dónde saco el ID del Sheet?
-
-En la URL de tu hoja:
-
-`https://docs.google.com/spreadsheets/d/ESTE_ES_EL_ID/edit#gid=0`
-
-Ese texto es el ID y se reemplaza en:
-
-```js
-var ss = SpreadsheetApp.openById('REEMPLAZAR_SHEET_ID');
-```
-
-### 2) ¿Dónde saco la URL Web App?
-
-En Apps Script: **Deploy > New deployment > Web app > Deploy**.
-Te entrega una URL tipo:
-
-`https://script.google.com/macros/s/XXXXXXXXXXXXX/exec`
-
-Esa URL se guarda en la pantalla de configuración de la app (botón **Guardar configuración**).
-
 ## Características
 
 - 100% usable sin internet (PWA con Service Worker).
@@ -50,7 +22,7 @@ Esa URL se guarda en la pantalla de configuración de la app (botón **Guardar c
 ## Configuración rápida
 
 1. Publica tu Apps Script como Web App y copia el URL.
-2. En `apps-script/Code.gs`, reemplaza `REEMPLAZAR_SHEET_ID` por tu ID real.
+2. En `app.js`, reemplaza `REEMPLAZAR_CON_URL_WEBAPP` por la URL real.
 3. Sirve los archivos con un servidor local:
 
 ```bash
@@ -58,7 +30,6 @@ python3 -m http.server 8080
 ```
 
 4. Abre `http://localhost:8080`.
-5. En la sección "Configuración de sincronización", pega la URL de la Web App y guarda.
 
 ## Campos del formato ejemplo
 
