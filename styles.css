@@ -100,6 +100,24 @@ textarea {
   border-radius: 8px;
 }
 
+.sync-message {
+  margin: 8px 0 12px;
+  display: block;
+  font-size: 12px;
+}
+
+.sync-message.ok {
+  color: var(--ok);
+}
+
+.sync-message.warn {
+  color: var(--warn);
+}
+
+.sync-message.neutral {
+  color: var(--muted);
+}
+
 .grid {
   display: grid;
   gap: 12px;

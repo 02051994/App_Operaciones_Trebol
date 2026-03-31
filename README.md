@@ -21,15 +21,23 @@ Aplicación web offline-first para registrar múltiples formatos (ejemplo: decla
 
 ## Configuración rápida
 
-1. Publica tu Apps Script como Web App y copia el URL.
-2. En `app.js`, reemplaza `REEMPLAZAR_CON_URL_WEBAPP` por la URL real.
-3. Sirve los archivos con un servidor local:
+1. Publica tu Apps Script como Web App y copia el URL terminado en `/exec`.
+2. Abre la app y pega esa URL en el campo **"URL Web App (Apps Script)"**.
+3. Si actualizas el código del Apps Script, vuelve a desplegar una **nueva versión** y reemplaza la URL en la app si cambió.
+4. Sirve los archivos con un servidor local:
 
 ```bash
 python3 -m http.server 8080
 ```
 
-4. Abre `http://localhost:8080`.
+5. Abre `http://localhost:8080`.
+
+## Solución de problemas de sincronización
+
+- Verifica que el Apps Script esté desplegado como **Web App** y no como "test deployment".
+- En Apps Script, usa "Implementar > Administrar implementaciones > Editar" y crea una nueva versión cuando cambies `Code.gs`.
+- En `apps-script/Code.gs`, reemplaza `REEMPLAZAR_SHEET_ID` por el ID real de tu Google Sheet.
+- La app ahora muestra mensajes de error en pantalla para facilitar el diagnóstico.
 
 ## Campos del formato ejemplo
 
