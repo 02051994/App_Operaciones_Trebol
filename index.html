@@ -21,14 +21,22 @@
     <main>
       <section class="card">
         <h2>Nuevo registro</h2>
-
-        <label for="appsScriptUrl">URL Web App (Apps Script)</label>
-        <input
-          id="appsScriptUrl"
-          type="url"
-          placeholder="https://script.google.com/macros/s/.../exec"
-          autocomplete="off"
-        />
+        <details class="sync-settings">
+          <summary>Configuración de sincronización</summary>
+          <p class="sync-help">
+            Esta ruta queda guardada en tu dispositivo y no se muestra en el formulario principal.
+          </p>
+          <label for="appsScriptUrl">URL Web App (Apps Script)</label>
+          <div class="url-input-row">
+            <input
+              id="appsScriptUrl"
+              type="password"
+              placeholder="https://script.google.com/macros/s/.../exec"
+              autocomplete="off"
+            />
+            <button type="button" id="toggleUrlVisibility" class="secondary">Mostrar</button>
+          </div>
+        </details>
         <small id="syncMessage" class="sync-message"></small>
 
         <label for="templateSelect">Tipo de formato</label>

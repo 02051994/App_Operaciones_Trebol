@@ -11,6 +11,7 @@ const syncButton = document.getElementById('syncButton');
 const pendingCount = document.getElementById('pendingCount');
 const connectionStatus = document.getElementById('connectionStatus');
 const appsScriptUrlInput = document.getElementById('appsScriptUrl');
+const toggleUrlVisibilityButton = document.getElementById('toggleUrlVisibility');
 const syncMessage = document.getElementById('syncMessage');
 
 function getAppsScriptUrl() {
@@ -20,6 +21,16 @@ function getAppsScriptUrl() {
 
 function setAppsScriptUrl(url) {
   localStorage.setItem(APPS_SCRIPT_URL_KEY, url.trim());
+}
+
+function maskUrl(url) {
+  if (!url || !url.includes('/macros/s/')) {
+    return '';
+  }
+  return url.replace(/(\/macros\/s\/)([^/]+)(\/exec.*)/i, (_, start, token, end) => {
+    const preview = token.slice(0, 5);
+    return `${start}${preview}*****${end}`;
+  });
 }
 
 function showSyncMessage(message, type = 'neutral') {
@@ -173,7 +184,10 @@ async function syncPendingRecords() {
 
   await renderRecords();
   if (syncedCount > 0) {
-    showSyncMessage(`Sincronización completada: ${syncedCount} registro(s) enviado(s).`, 'ok');
+    showSyncMessage(
+      `Sincronización completada: ${syncedCount} registro(s) enviado(s) a ${maskUrl(appsScriptUrl)}.`,
+      'ok',
+    );
   } else {
     showSyncMessage(
       `No se sincronizó ningún registro${
@@ -235,6 +249,7 @@ form.addEventListener('submit', async (event) => {
   await saveRecord(record);
   form.reset();
   await renderRecords();
+  showSyncMessage('Registro guardado en el dispositivo. Pulsa "Sincronizar pendientes" para enviarlo.', 'neutral');
 });
 
 syncButton.addEventListener('click', async () => {
@@ -255,17 +270,30 @@ if ('serviceWorker' in navigator) {
 
 (async function init() {
   appsScriptUrlInput.value = getAppsScriptUrl();
-  appsScriptUrlInput.addEventListener('change', () => {
+  appsScriptUrlInput.addEventListener('input', () => {
     const url = appsScriptUrlInput.value.trim();
     setAppsScriptUrl(url);
-    if (!isValidAppsScriptUrl(url)) {
-      showSyncMessage('La URL parece inválida. Debe ser del tipo https://script.google.com/macros/s/.../exec', 'warn');
-      return;
+    if (url && isValidAppsScriptUrl(url)) {
+      showSyncMessage(`URL de sincronización guardada: ${maskUrl(url)}.`, 'ok');
+    } else if (url) {
+      showSyncMessage('La URL no parece válida. Debe terminar en /exec.', 'warn');
+    } else {
+      showSyncMessage('Ingresa la URL del Apps Script para sincronizar.', 'neutral');
     }
-    showSyncMessage('URL guardada. Ya puedes sincronizar.', 'ok');
+  });
+  toggleUrlVisibilityButton?.addEventListener('click', () => {
+    const isVisible = appsScriptUrlInput.type === 'text';
+    appsScriptUrlInput.type = isVisible ? 'password' : 'text';
+    toggleUrlVisibilityButton.textContent = isVisible ? 'Mostrar' : 'Ocultar';
   });
 
   renderStatus();
   await renderRecords();
+  if (!isValidAppsScriptUrl(getAppsScriptUrl())) {
+    showSyncMessage(
+      'Antes de sincronizar, configura la URL del Apps Script en "Configuración de sincronización".',
+      'warn',
+    );
+  }
   await syncPendingRecords();
 })();

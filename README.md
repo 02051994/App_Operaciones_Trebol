@@ -22,7 +22,7 @@ Aplicación web offline-first para registrar múltiples formatos (ejemplo: decla
 ## Configuración rápida
 
 1. Publica tu Apps Script como Web App y copia el URL terminado en `/exec`.
-2. Abre la app y pega esa URL en el campo **"URL Web App (Apps Script)"**.
+2. Abre la app, entra a **"Configuración de sincronización"** y pega la URL (queda oculta por defecto).
 3. Si actualizas el código del Apps Script, vuelve a desplegar una **nueva versión** y reemplaza la URL en la app si cambió.
 4. Sirve los archivos con un servidor local:
 
