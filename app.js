@@ -150,20 +150,8 @@ async function syncPendingRecords() {
 
   for (const record of pendingRecords) {
     try {
-      const response = await fetch(appsScriptUrl, {
-        method: 'POST',
-        // Evita preflight CORS (Apps Script no responde OPTIONS por defecto).
-        // Enviamos el JSON como text/plain para que sea una "simple request".
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(record),
-      });
-
-      if (!response.ok) {
-        continue;
-      }
-
-      const result = await response.json().catch(() => ({}));
-      if (result?.ok || result?.status === 'ok') {
+      const result = await sendRecordToAppsScript(appsScriptUrl, record);
+      if (result.synced) {
         record.status = 'synced';
         record.syncedAt = new Date().toISOString();
         await saveRecord(record);
@@ -183,6 +171,42 @@ async function syncPendingRecords() {
       'No se sincronizó ningún registro. Revisa que la URL /exec sea de la última versión desplegada del Apps Script.',
       'warn',
     );
+  }
+}
+
+async function sendRecordToAppsScript(appsScriptUrl, record) {
+  const payload = JSON.stringify(record);
+
+  try {
+    const response = await fetch(appsScriptUrl, {
+      method: 'POST',
+      // Evita preflight CORS (Apps Script no responde OPTIONS por defecto).
+      // Enviamos el JSON como text/plain para que sea una "simple request".
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: payload,
+    });
+
+    if (!response.ok) {
+      return { synced: false };
+    }
+
+    const result = await response.json().catch(() => ({}));
+    return { synced: Boolean(result?.ok || result?.status === 'ok') };
+  } catch (_error) {
+    // Fallback para despliegues de Apps Script sin CORS.
+    // mode:no-cors permite enviar el POST pero no leer la respuesta (opaque).
+    const opaqueResponse = await fetch(appsScriptUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: payload,
+    });
+
+    if (opaqueResponse.type === 'opaque') {
+      return { synced: true };
+    }
+
+    return { synced: false };
   }
 }
 
