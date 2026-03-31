@@ -3,6 +3,7 @@ const DB_VERSION = 1;
 const STORE = 'records';
 const APPS_SCRIPT_URL_KEY = 'apps_script_url';
 const APPS_SCRIPT_URL_DEFAULT = 'https://script.google.com/macros/s/REEMPLAZAR_CON_URL_WEBAPP/exec';
+const ASSUME_NO_CORS_SUCCESS_KEY = 'assume_no_cors_success';
 
 const form = document.getElementById('recordForm');
 const recordsList = document.getElementById('recordsList');
@@ -13,6 +14,7 @@ const connectionStatus = document.getElementById('connectionStatus');
 const appsScriptUrlInput = document.getElementById('appsScriptUrl');
 const toggleUrlVisibilityButton = document.getElementById('toggleUrlVisibility');
 const syncMessage = document.getElementById('syncMessage');
+const assumeNoCorsSuccessInput = document.getElementById('assumeNoCorsSuccess');
 
 function getAppsScriptUrl() {
   const configured = localStorage.getItem(APPS_SCRIPT_URL_KEY)?.trim();
@@ -21,6 +23,14 @@ function getAppsScriptUrl() {
 
 function setAppsScriptUrl(url) {
   localStorage.setItem(APPS_SCRIPT_URL_KEY, url.trim());
+}
+
+function shouldAssumeNoCorsSuccess() {
+  return localStorage.getItem(ASSUME_NO_CORS_SUCCESS_KEY) === 'true';
+}
+
+function setAssumeNoCorsSuccess(value) {
+  localStorage.setItem(ASSUME_NO_CORS_SUCCESS_KEY, value ? 'true' : 'false');
 }
 
 function maskUrl(url) {
@@ -158,6 +168,7 @@ async function syncPendingRecords() {
   }
 
   let syncedCount = 0;
+  let assumedNoCorsCount = 0;
   let failedCount = 0;
   let lastFailureReason = '';
 
@@ -169,6 +180,9 @@ async function syncPendingRecords() {
         record.syncedAt = new Date().toISOString();
         await saveRecord(record);
         syncedCount += 1;
+        if (result.mode === 'no-cors-assumed') {
+          assumedNoCorsCount += 1;
+        }
       } else {
         failedCount += 1;
         if (result.reason) {
@@ -184,9 +198,13 @@ async function syncPendingRecords() {
 
   await renderRecords();
   if (syncedCount > 0) {
+    const detail =
+      assumedNoCorsCount > 0
+        ? ` (${assumedNoCorsCount} marcado/s como enviado/s sin confirmación por no-cors)`
+        : '';
     showSyncMessage(
-      `Sincronización completada: ${syncedCount} registro(s) enviado(s) a ${maskUrl(appsScriptUrl)}.`,
-      'ok',
+      `Sincronización completada: ${syncedCount} registro(s) enviado(s) a ${maskUrl(appsScriptUrl)}${detail}.`,
+      assumedNoCorsCount > 0 ? 'warn' : 'ok',
     );
   } else {
     showSyncMessage(
@@ -233,6 +251,9 @@ async function sendRecordToAppsScript(appsScriptUrl, record) {
     });
 
     if (opaqueResponse.type === 'opaque') {
+      if (shouldAssumeNoCorsSuccess()) {
+        return { synced: true, mode: 'no-cors-assumed' };
+      }
       return {
         synced: false,
         reason: 'No se pudo confirmar respuesta del Apps Script (modo no-cors).',
@@ -270,6 +291,8 @@ if ('serviceWorker' in navigator) {
 
 (async function init() {
   appsScriptUrlInput.value = getAppsScriptUrl();
+  assumeNoCorsSuccessInput.checked = shouldAssumeNoCorsSuccess();
+
   appsScriptUrlInput.addEventListener('input', () => {
     const url = appsScriptUrlInput.value.trim();
     setAppsScriptUrl(url);
@@ -285,6 +308,18 @@ if ('serviceWorker' in navigator) {
     const isVisible = appsScriptUrlInput.type === 'text';
     appsScriptUrlInput.type = isVisible ? 'password' : 'text';
     toggleUrlVisibilityButton.textContent = isVisible ? 'Mostrar' : 'Ocultar';
+  });
+  assumeNoCorsSuccessInput?.addEventListener('change', () => {
+    const value = Boolean(assumeNoCorsSuccessInput.checked);
+    setAssumeNoCorsSuccess(value);
+    if (value) {
+      showSyncMessage(
+        'Modo no-cors activado: se marcarán como sincronizados sin confirmación del servidor.',
+        'warn',
+      );
+    } else {
+      showSyncMessage('Modo no-cors desactivado: se requiere confirmación del Apps Script.', 'neutral');
+    }
   });
 
   renderStatus();

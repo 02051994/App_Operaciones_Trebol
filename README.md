@@ -39,6 +39,9 @@ python3 -m http.server 8080
 - En `apps-script/Code.gs`, reemplaza `REEMPLAZAR_SHEET_ID` por el ID real de tu Google Sheet.
 - La app ahora muestra mensajes de error en pantalla para facilitar el diagnóstico.
 - Si el navegador solo permite `no-cors`, la app **ya no marcará el registro como sincronizado** hasta recibir confirmación explícita del Apps Script.
+- Si tu entorno bloquea CORS de forma permanente (caso común con Apps Script desde hosting externo), puedes activar en la app la opción:
+  **"Marcar como sincronizado si Apps Script responde en modo no-cors"**.  
+  Úsalo solo cuando ya validaste en la hoja que los datos efectivamente están llegando.
 
 ## Campos del formato ejemplo
 
