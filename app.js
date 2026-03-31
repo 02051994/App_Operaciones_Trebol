@@ -1,7 +1,8 @@
 const DB_NAME = 'trebol_offline_db';
 const DB_VERSION = 1;
 const STORE = 'records';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOn8Eoxn3vSUIkrnFsVOUFDK5Hq5W6W4ue-Y3u9AZmY5vWpKWz_5dn-lLKIepBiyQ/exec';
+const APPS_SCRIPT_URL_KEY = 'apps_script_url';
+const APPS_SCRIPT_URL_DEFAULT = 'https://script.google.com/macros/s/REEMPLAZAR_CON_URL_WEBAPP/exec';
 
 const form = document.getElementById('recordForm');
 const recordsList = document.getElementById('recordsList');
@@ -9,6 +10,26 @@ const templateSelect = document.getElementById('templateSelect');
 const syncButton = document.getElementById('syncButton');
 const pendingCount = document.getElementById('pendingCount');
 const connectionStatus = document.getElementById('connectionStatus');
+const appsScriptUrlInput = document.getElementById('appsScriptUrl');
+const syncMessage = document.getElementById('syncMessage');
+
+function getAppsScriptUrl() {
+  const configured = localStorage.getItem(APPS_SCRIPT_URL_KEY)?.trim();
+  return configured || APPS_SCRIPT_URL_DEFAULT;
+}
+
+function setAppsScriptUrl(url) {
+  localStorage.setItem(APPS_SCRIPT_URL_KEY, url.trim());
+}
+
+function showSyncMessage(message, type = 'neutral') {
+  syncMessage.textContent = message;
+  syncMessage.className = `sync-message ${type}`;
+}
+
+function isValidAppsScriptUrl(url) {
+  return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec(\?.*)?$/i.test(url);
+}
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -113,12 +134,23 @@ async function renderRecords() {
 async function syncPendingRecords() {
   const pendingRecords = await getPendingRecords();
   if (!pendingRecords.length || !navigator.onLine) {
+    if (!navigator.onLine) {
+      showSyncMessage('Sin conexión: cuando vuelva el internet se reintentará la sincronización.', 'warn');
+    }
     return;
   }
 
+  const appsScriptUrl = getAppsScriptUrl();
+  if (!isValidAppsScriptUrl(appsScriptUrl)) {
+    showSyncMessage('Configura una URL válida de Apps Script (termina en /exec).', 'warn');
+    return;
+  }
+
+  let syncedCount = 0;
+
   for (const record of pendingRecords) {
     try {
-      const response = await fetch(APPS_SCRIPT_URL, {
+      const response = await fetch(appsScriptUrl, {
         method: 'POST',
         // Evita preflight CORS (Apps Script no responde OPTIONS por defecto).
         // Enviamos el JSON como text/plain para que sea una "simple request".
@@ -135,13 +167,23 @@ async function syncPendingRecords() {
         record.status = 'synced';
         record.syncedAt = new Date().toISOString();
         await saveRecord(record);
+        syncedCount += 1;
       }
-    } catch {
+    } catch (error) {
       // Si falla la red, se mantiene pendiente para reintentar luego.
+      showSyncMessage(`Error de sincronización: ${error?.message || 'sin detalle'}.`, 'warn');
     }
   }
 
   await renderRecords();
+  if (syncedCount > 0) {
+    showSyncMessage(`Sincronización completada: ${syncedCount} registro(s) enviado(s).`, 'ok');
+  } else {
+    showSyncMessage(
+      'No se sincronizó ningún registro. Revisa que la URL /exec sea de la última versión desplegada del Apps Script.',
+      'warn',
+    );
+  }
 }
 
 form.addEventListener('submit', async (event) => {
@@ -153,6 +195,7 @@ form.addEventListener('submit', async (event) => {
 });
 
 syncButton.addEventListener('click', async () => {
+  showSyncMessage('Sincronizando...', 'neutral');
   await syncPendingRecords();
 });
 
@@ -168,6 +211,17 @@ if ('serviceWorker' in navigator) {
 }
 
 (async function init() {
+  appsScriptUrlInput.value = getAppsScriptUrl();
+  appsScriptUrlInput.addEventListener('change', () => {
+    const url = appsScriptUrlInput.value.trim();
+    setAppsScriptUrl(url);
+    if (!isValidAppsScriptUrl(url)) {
+      showSyncMessage('La URL parece inválida. Debe ser del tipo https://script.google.com/macros/s/.../exec', 'warn');
+      return;
+    }
+    showSyncMessage('URL guardada. Ya puedes sincronizar.', 'ok');
+  });
+
   renderStatus();
   await renderRecords();
   await syncPendingRecords();

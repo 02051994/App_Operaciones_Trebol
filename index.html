@@ -22,6 +22,15 @@
       <section class="card">
         <h2>Nuevo registro</h2>
 
+        <label for="appsScriptUrl">URL Web App (Apps Script)</label>
+        <input
+          id="appsScriptUrl"
+          type="url"
+          placeholder="https://script.google.com/macros/s/.../exec"
+          autocomplete="off"
+        />
+        <small id="syncMessage" class="sync-message"></small>
+
         <label for="templateSelect">Tipo de formato</label>
         <select id="templateSelect">
           <option value="declaracion_salud">Declaración jurada de salud</option>
