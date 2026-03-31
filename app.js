@@ -1,7 +1,7 @@
 const DB_NAME = 'trebol_offline_db';
 const DB_VERSION = 1;
 const STORE = 'records';
-const APPS_SCRIPT_URL = 'REEMPLAZAR_CON_URL_WEBAPP';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOn8Eoxn3vSUIkrnFsVOUFDK5Hq5W6W4ue-Y3u9AZmY5vWpKWz_5dn-lLKIepBiyQ/exec';
 
 const form = document.getElementById('recordForm');
 const recordsList = document.getElementById('recordsList');
