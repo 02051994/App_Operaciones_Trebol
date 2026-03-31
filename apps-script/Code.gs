@@ -1,28 +1,12 @@
 /**
  * Web App endpoint para recibir registros desde la app offline.
- *
- * PASOS:
- * 1) Pega este código en script.google.com.
- * 2) Deploy > New deployment > Web app.
- * 3) Ejecutar como: tú mismo.
- * 4) Acceso: según tu política (normalmente "Anyone with the link").
- * 5) Copia la URL /exec y colócala en la app (Configuración de sincronización).
+ * Desplegar como: Ejecutar como tú, acceso: cualquiera con el enlace (o restringido según tu cuenta).
  */
-
-var SHEET_ID = '1n13J0V_rqKUWU-6y960H6ODS_leAy9mpImI33n9-gZY';
-var SHEET_NAME = 'Registros';
-
-function doGet() {
-  return ContentService
-    .createTextOutput(JSON.stringify({ ok: true, status: 'alive', service: 'trebol-sync' }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
 function doPost(e) {
   try {
-    var payload = JSON.parse(e.postData.contents || '{}');
-    var ss = SpreadsheetApp.openById(SHEET_ID);
-    var sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+    var payload = JSON.parse(e.postData.contents);
+    var ss = SpreadsheetApp.openById('REEMPLAZAR_SHEET_ID');
+    var sheet = ss.getSheetByName('Registros') || ss.insertSheet('Registros');
 
     if (sheet.getLastRow() === 0) {
       sheet.appendRow([

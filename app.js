@@ -1,10 +1,7 @@
 const DB_NAME = 'trebol_offline_db';
 const DB_VERSION = 1;
 const STORE = 'records';
-const DEFAULT_APPS_SCRIPT_URL = 'REEMPLAZAR_CON_URL_WEBAPP';
-const STORAGE_KEYS = {
-  webAppUrl: 'trebol_webapp_url',
-};
+const APPS_SCRIPT_URL = 'REEMPLAZAR_CON_URL_WEBAPP';
 
 const form = document.getElementById('recordForm');
 const recordsList = document.getElementById('recordsList');
@@ -12,16 +9,6 @@ const templateSelect = document.getElementById('templateSelect');
 const syncButton = document.getElementById('syncButton');
 const pendingCount = document.getElementById('pendingCount');
 const connectionStatus = document.getElementById('connectionStatus');
-const webAppUrlInput = document.getElementById('webAppUrl');
-const saveConfigButton = document.getElementById('saveConfigButton');
-
-function getWebAppUrl() {
-  return localStorage.getItem(STORAGE_KEYS.webAppUrl) || DEFAULT_APPS_SCRIPT_URL;
-}
-
-function saveWebAppUrl(url) {
-  localStorage.setItem(STORAGE_KEYS.webAppUrl, url.trim());
-}
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -125,20 +112,13 @@ async function renderRecords() {
 
 async function syncPendingRecords() {
   const pendingRecords = await getPendingRecords();
-  const appsScriptUrl = getWebAppUrl();
-
   if (!pendingRecords.length || !navigator.onLine) {
-    return;
-  }
-
-  if (!appsScriptUrl || appsScriptUrl === DEFAULT_APPS_SCRIPT_URL) {
-    alert('Configura la URL de Web App antes de sincronizar.');
     return;
   }
 
   for (const record of pendingRecords) {
     try {
-      const response = await fetch(appsScriptUrl, {
+      const response = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(record),
@@ -170,16 +150,6 @@ form.addEventListener('submit', async (event) => {
   await renderRecords();
 });
 
-saveConfigButton.addEventListener('click', () => {
-  const url = webAppUrlInput.value.trim();
-  if (!url) {
-    alert('Ingresa una URL válida de Web App.');
-    return;
-  }
-  saveWebAppUrl(url);
-  alert('Configuración guardada en este dispositivo.');
-});
-
 syncButton.addEventListener('click', async () => {
   await syncPendingRecords();
 });
@@ -194,10 +164,6 @@ window.addEventListener('offline', renderStatus);
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js');
 }
-
-(function initConfigUI() {
-  webAppUrlInput.value = getWebAppUrl() === DEFAULT_APPS_SCRIPT_URL ? '' : getWebAppUrl();
-})();
 
 (async function init() {
   renderStatus();
