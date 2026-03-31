@@ -135,6 +135,20 @@ textarea {
   flex: 1;
 }
 
+.sync-option {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.sync-option input {
+  margin-top: 2px;
+}
+
 .sync-message.ok {
   color: var(--ok);
 }
