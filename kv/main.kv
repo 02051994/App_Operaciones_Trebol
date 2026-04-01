@@ -50,7 +50,7 @@ ScreenManager:
         MDTopAppBar:
             title: "Formatos"
             left_action_items: [["logout", lambda x: app.logout()]]
-            right_action_items: [["database", lambda x: app.root.current = 'records'], ["sync", lambda x: app.root.current = 'sync']]
+            right_action_items: [["database", lambda x: setattr(app.root, "current", "records")], ["sync", lambda x: setattr(app.root, "current", "sync")]]
 
         ScrollView:
             MDList:
@@ -63,7 +63,7 @@ ScreenManager:
         MDTopAppBar:
             id: form_title
             title: "Formulario"
-            left_action_items: [["arrow-left", lambda x: app.root.current = 'forms']]
+            left_action_items: [["arrow-left", lambda x: setattr(app.root, "current", "forms")]]
             right_action_items: [["content-save", lambda x: app.save_current_form()]]
 
         ScrollView:
@@ -81,7 +81,7 @@ ScreenManager:
 
         MDTopAppBar:
             title: "Registros locales"
-            left_action_items: [["arrow-left", lambda x: app.root.current = 'forms']]
+            left_action_items: [["arrow-left", lambda x: setattr(app.root, "current", "forms")]]
             right_action_items: [["refresh", lambda x: app.refresh_records_view()]]
 
         MDBoxLayout:
@@ -111,7 +111,7 @@ ScreenManager:
 
         MDTopAppBar:
             title: "Sincronización"
-            left_action_items: [["arrow-left", lambda x: app.root.current = 'forms']]
+            left_action_items: [["arrow-left", lambda x: setattr(app.root, "current", "forms")]]
 
         MDRaisedButton:
             text: "Sincronizar ahora"
