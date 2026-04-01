@@ -41,6 +41,11 @@ ScreenManager:
             pos_hint: {"center_x": .5}
             on_release: app.do_login()
 
+        MDFlatButton:
+            text: "Actualizar datos"
+            pos_hint: {"center_x": .5}
+            on_release: app.sync_catalogs()
+
         Widget:
 
 <FormsScreen>:
