@@ -18,8 +18,26 @@ class SyncService:
             r = requests.get(self.base_url, params=params, timeout=self.timeout)
         else:
             r = requests.post(self.base_url, json=payload, timeout=self.timeout)
+
+        self._raise_if_google_auth_redirect(r)
+
         r.raise_for_status()
-        return r.json()
+        try:
+            return r.json()
+        except ValueError as exc:
+            raise RuntimeError("La respuesta del servidor no es JSON válido") from exc
+
+    @staticmethod
+    def _raise_if_google_auth_redirect(response):
+        redirect_chain = list(response.history) + [response]
+        for hop in redirect_chain:
+            location = hop.headers.get("Location", "")
+            if "accounts.google.com" in location or "accounts.google.com" in hop.url:
+                raise RuntimeError(
+                    "La URL de Apps Script redirige a login de Google (accounts.google.com). "
+                    "No basta con compartir la hoja: debes desplegar el Apps Script como Web App "
+                    "con acceso 'Cualquiera con el enlace' y usar la URL /exec de ese despliegue."
+                )
 
     def pull_catalogs(self):
         users = self._request("GET", params={"action": "users"}).get("users", [])
