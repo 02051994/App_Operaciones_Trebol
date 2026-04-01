@@ -21,9 +21,14 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Usuario inicial (si `seed_demo_data=true`):
+Usuario inicial local (si no hay conexión o Apps Script falla):
 - usuario: `admin`
 - password: `1234`
+
+Opcional en `config.json`:
+- `default_login_user`
+- `default_login_password`
+- `local_seed_users` (lista de usuarios/password para acceso local de emergencia)
 
 ## Flujo operativo
 
@@ -149,3 +154,16 @@ Revisar en **Deploy > Manage deployments > Web app**:
 - En `config.json`, usar la URL del despliegue que termina en `/exec` (no la URL del editor ni `/dev`).
 
 Luego vuelve a desplegar, actualiza `apps_script_url` en `config.json` y reintenta sincronización.
+
+
+## Diagnóstico rápido de login
+
+Si en consola ves muchos `302` hacia `accounts.google.com`, el login remoto está bloqueado por permisos del Web App.
+
+1. Prueba primero el acceso local con `admin / 1234`.
+2. Verifica que `apps_script_url` sea la URL de despliegue que termina en `/exec`.
+3. En Apps Script, vuelve a desplegar Web App con acceso `Anyone with the link`.
+4. Si cambiaste usuarios en la nube, vuelve a intentar login (la app reintenta sincronizar catálogos cuando falla login local).
+
+
+Nota: en Apps Script, por defecto se esperan pestañas `users`, `forms`, `fields`. Si tu hoja usa nombres como `usuarios` o `tipodeformato`, debes renombrarlas o ajustar `google_apps_script.gs`.

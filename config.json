@@ -5,5 +5,12 @@
   "signatures_dir": "signatures",
   "sync_batch_size": 50,
   "request_timeout_sec": 20,
-  "seed_demo_data": true
+  "seed_demo_data": true,
+  "local_seed_users": [
+    {"usuario": "trebol1", "password": "trebol2"},
+    {"usuario": "trebol2", "password": "trebol3"},
+    {"usuario": "trebol3", "password": "trebol4"}
+  ],
+  "default_login_user": "admin",
+  "default_login_password": "1234"
 }
