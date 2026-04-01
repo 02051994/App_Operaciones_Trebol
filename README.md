@@ -125,3 +125,14 @@ buildozer android debug
 ```
 
 Luego instalar APK generado en `bin/`.
+
+## Script listo para tu hoja
+
+Se agregó `google_apps_script.gs` con el backend completo para la hoja:
+`1TzJY1eySEA2F_yR19-PZL_3qmMzGL8Wn8VDup4F-IVE`.
+
+Pasos rápidos:
+1. Abre Apps Script desde tu Google Sheet.
+2. Pega el contenido de `google_apps_script.gs`.
+3. Implementa como *Web app* con acceso para quien tenga el link.
+4. Copia la URL de despliegue en `config.json` (`apps_script_url`).
