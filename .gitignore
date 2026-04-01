@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+*.db
+*.log
+bin/
+.buildozer/
+.sign/
+*.spec.backup
+signatures/*.png

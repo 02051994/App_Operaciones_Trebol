@@ -1,0 +1,9 @@
+{
+  "apps_script_url": "https://script.google.com/macros/s/TU_DEPLOY_ID/exec",
+  "sqlite_path": "data/app.db",
+  "data_dir": "data",
+  "signatures_dir": "signatures",
+  "sync_batch_size": 50,
+  "request_timeout_sec": 20,
+  "seed_demo_data": true
+}

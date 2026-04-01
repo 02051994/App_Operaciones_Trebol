@@ -1,0 +1,126 @@
+#:import dp kivy.metrics.dp
+
+ScreenManager:
+    LoginScreen:
+        name: "login"
+    FormsScreen:
+        name: "forms"
+    DynamicFormScreen:
+        name: "dynamic_form"
+    RecordsScreen:
+        name: "records"
+    SyncScreen:
+        name: "sync"
+
+<LoginScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: dp(16)
+        padding: dp(24)
+
+        MDLabel:
+            text: "Operaciones Trebol"
+            halign: "center"
+            font_style: "H5"
+
+        Widget:
+
+        MDTextField:
+            id: username
+            hint_text: "Usuario"
+            mode: "rectangle"
+
+        MDTextField:
+            id: password
+            hint_text: "Contraseña"
+            password: True
+            mode: "rectangle"
+
+        MDRaisedButton:
+            text: "Ingresar"
+            pos_hint: {"center_x": .5}
+            on_release: app.do_login()
+
+        Widget:
+
+<FormsScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            title: "Formatos"
+            left_action_items: [["logout", lambda x: app.logout()]]
+            right_action_items: [["database", lambda x: app.root.current = 'records'], ["sync", lambda x: app.root.current = 'sync']]
+
+        ScrollView:
+            MDList:
+                id: forms_list
+
+<DynamicFormScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            id: form_title
+            title: "Formulario"
+            left_action_items: [["arrow-left", lambda x: app.root.current = 'forms']]
+            right_action_items: [["content-save", lambda x: app.save_current_form()]]
+
+        ScrollView:
+            do_scroll_x: False
+            MDBoxLayout:
+                id: fields_box
+                orientation: "vertical"
+                spacing: dp(10)
+                adaptive_height: True
+                padding: dp(14)
+
+<RecordsScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            title: "Registros locales"
+            left_action_items: [["arrow-left", lambda x: app.root.current = 'forms']]
+            right_action_items: [["refresh", lambda x: app.refresh_records_view()]]
+
+        MDBoxLayout:
+            size_hint_y: None
+            height: dp(90)
+            spacing: dp(12)
+            padding: dp(12)
+
+            MDLabel:
+                id: lbl_pending
+                text: "Pendientes: 0"
+            MDLabel:
+                id: lbl_synced
+                text: "Sincronizados: 0"
+            MDLabel:
+                id: lbl_ready_delete
+                text: "Listos para borrado: 0"
+
+        ScrollView:
+            MDList:
+                id: records_list
+
+<SyncScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: dp(8)
+
+        MDTopAppBar:
+            title: "Sincronización"
+            left_action_items: [["arrow-left", lambda x: app.root.current = 'forms']]
+
+        MDRaisedButton:
+            text: "Sincronizar ahora"
+            pos_hint: {"center_x": .5}
+            on_release: app.run_full_sync()
+
+        MDLabel:
+            id: sync_log
+            text: "Sin acciones"
+            halign: "left"
+            valign: "top"
+            padding: dp(12), dp(12)
