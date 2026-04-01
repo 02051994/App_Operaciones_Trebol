@@ -117,11 +117,46 @@ class OperacionesApp(MDApp):
         self.db.replace_forms_catalog(forms, fields)
 
     def snack(self, message):
-        Snackbar(text=message, duration=2).open()
+        """Muestra un snackbar compatible con distintas APIs de KivyMD."""
+        try:
+            Snackbar(text=message, duration=2).open()
+            return
+        except TypeError:
+            pass
+
+        # Compatibilidad con variantes donde ``text`` ya no es una propiedad.
+        sb = Snackbar(duration=2)
+        if hasattr(sb, "text"):
+            sb.text = message
+        elif hasattr(sb, "add_widget"):
+            try:
+                from kivymd.uix.label import MDLabel
+                sb.add_widget(MDLabel(text=message))
+            except Exception:
+                return
+        sb.open()
+
+    def sync_catalogs(self, notify: bool = True):
+        try:
+            result = self.sync_service.pull_catalogs()
+            self.refresh_forms()
+            if notify:
+                self.snack(
+                    f"Datos actualizados: usuarios={result['users']}, formularios={result['forms']}"
+                )
+            return result
+        except Exception as e:
+            if notify:
+                self.snack(f"No se pudo actualizar datos: {e}")
+            return None
 
     def do_login(self):
         user = self.root.get_screen("login").ids.username.text.strip()
         pw = self.root.get_screen("login").ids.password.text.strip()
+
+        # Antes de validar, intenta traer usuarios actualizados desde la hoja.
+        self.sync_catalogs(notify=False)
+
         if self.db.validate_login(user, pw):
             self.current_user = user
             self.root.current = "forms"
