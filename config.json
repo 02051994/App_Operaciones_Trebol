@@ -1,5 +1,5 @@
 {
-  "apps_script_url": "https://script.google.com/macros/s/TU_DEPLOY_ID/exec",
+  "apps_script_url": "https://script.google.com/macros/s/AKfycbwfyp01Ckdacv8319VHIFfnAbEEveythvaCELUmbsY4MkJFktboXKerTJ-jkkFUQQZh/exec",
   "sqlite_path": "data/app.db",
   "data_dir": "data",
   "signatures_dir": "signatures",
