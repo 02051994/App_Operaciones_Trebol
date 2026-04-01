@@ -136,3 +136,16 @@ Pasos rápidos:
 2. Pega el contenido de `google_apps_script.gs`.
 3. Implementa como *Web app* con acceso para quien tenga el link.
 4. Copia la URL de despliegue en `config.json` (`apps_script_url`).
+
+## Solución de problemas de sincronización
+
+Si al sincronizar ves en logs redirecciones a `accounts.google.com` (`302`), tu Web App de Apps Script no está pública para la app.
+
+> Importante: compartir el **Google Sheet** no es suficiente. Lo que debe estar accesible es el **despliegue Web App** de Apps Script.
+
+Revisar en **Deploy > Manage deployments > Web app**:
+- **Execute as**: tu cuenta.
+- **Who has access**: `Anyone with the link` (o equivalente en tu dominio).
+- En `config.json`, usar la URL del despliegue que termina en `/exec` (no la URL del editor ni `/dev`).
+
+Luego vuelve a desplegar, actualiza `apps_script_url` en `config.json` y reintenta sincronización.
