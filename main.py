@@ -96,6 +96,15 @@ class OperacionesApp(MDApp):
     def on_start(self):
         if self.config_data.get("seed_demo_data", True):
             self._seed_if_empty()
+
+        local_seed_users = self.config_data.get("local_seed_users") or []
+        if local_seed_users:
+            self.db.ensure_local_users(local_seed_users)
+        else:
+            default_user = self.config_data.get("default_login_user", "admin")
+            default_password = self.config_data.get("default_login_password", "1234")
+            self.db.ensure_local_user(default_user, default_password)
+
         self.refresh_forms()
         self.refresh_records_view()
 
@@ -154,14 +163,34 @@ class OperacionesApp(MDApp):
         user = self.root.get_screen("login").ids.username.text.strip()
         pw = self.root.get_screen("login").ids.password.text.strip()
 
-        # Antes de validar, intenta traer usuarios actualizados desde la hoja.
-        self.sync_catalogs(notify=False)
+        if not user or not pw:
+            self.snack("Ingresa usuario y contraseña")
+            return
 
+        # 1) Intento offline primero (rápido y sin depender de internet).
         if self.db.validate_login(user, pw):
             self.current_user = user
             self.root.current = "forms"
             self.refresh_forms()
+            # Actualiza catálogos en segundo plano, sin bloquear el ingreso.
+            Clock.schedule_once(lambda _dt: self.sync_catalogs(notify=False), 0.1)
             return
+
+        # 2) Si falla local, intenta traer usuarios remotos y revalidar.
+        sync_result = self.sync_catalogs(notify=False)
+        if sync_result is not None and self.db.validate_login(user, pw):
+            self.current_user = user
+            self.root.current = "forms"
+            self.refresh_forms()
+            return
+
+        # 3) Mensaje de ayuda concreto cuando el problema es Apps Script privado.
+        if sync_result is None:
+            self.snack(
+                "No se pudo validar en la nube. Revisa que Apps Script esté en /exec y acceso 'Anyone with the link'."
+            )
+            return
+
         self.snack("Usuario o contraseña inválidos")
 
     def logout(self):

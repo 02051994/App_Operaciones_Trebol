@@ -13,9 +13,9 @@
  */
 
 const SPREADSHEET_ID = '1TzJY1eySEA2F_yR19-PZL_3qmMzGL8Wn8VDup4F-IVE';
-const TAB_USERS = 'users';
-const TAB_FORMS = 'forms';
-const TAB_FIELDS = 'fields';
+const TAB_USERS = ['users', 'usuarios'];
+const TAB_FORMS = ['forms', 'tipodeformato'];
+const TAB_FIELDS = ['fields', 'campos'];
 
 function doGet(e) {
   try {
@@ -144,10 +144,20 @@ function getSpreadsheet_() {
   return SpreadsheetApp.openById(SPREADSHEET_ID);
 }
 
-function getSheetByNameOrThrow_(sheetName) {
-  const sheet = getSpreadsheet_().getSheetByName(sheetName);
-  if (!sheet) throw new Error('No existe la pestaña: ' + sheetName);
-  return sheet;
+function getSheetByNameOrThrow_(sheetNameOrCandidates) {
+  const ss = getSpreadsheet_();
+  const candidates = Array.isArray(sheetNameOrCandidates)
+    ? sheetNameOrCandidates
+    : [sheetNameOrCandidates];
+
+  for (var i = 0; i < candidates.length; i += 1) {
+    var candidate = safeString_(candidates[i]).trim();
+    if (!candidate) continue;
+    var sheet = ss.getSheetByName(candidate);
+    if (sheet) return sheet;
+  }
+
+  throw new Error('No existe ninguna pestaña esperada: ' + JSON.stringify(candidates));
 }
 
 function readSheetAsObjects_(sheetName) {

@@ -106,6 +106,29 @@ class LocalDB:
             )
             return c.fetchone() is not None
 
+    def ensure_local_user(self, username: str, password: str):
+        with self._conn() as conn:
+            c = conn.cursor()
+            c.execute(
+                """
+                INSERT INTO users (id, usuario, password, activo, updated_at)
+                VALUES (?, ?, ?, 1, datetime('now'))
+                ON CONFLICT(usuario) DO UPDATE SET
+                  password=excluded.password,
+                  activo=1,
+                  updated_at=excluded.updated_at
+                """,
+                (f"local_{username}", username, password),
+            )
+
+    def ensure_local_users(self, users: List[Dict[str, Any]]):
+        for u in users:
+            username = str(u.get("usuario", "")).strip()
+            password = str(u.get("password", "")).strip()
+            if not username or not password:
+                continue
+            self.ensure_local_user(username, password)
+
     # Forms/Catalog
     def replace_forms_catalog(self, forms: List[Dict[str, Any]], fields: List[Dict[str, Any]]):
         with self._conn() as conn:
